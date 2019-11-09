@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension"
+     xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension"
+      xmlns:fw="http://schemas.microsoft.com/wix/FirewallExtension" >
+
+  <?define ProductVersion="!(bind.FileVersion.InstallTempalte)" ?>
+  <?define ProductUpgradeCode="{2E8636FC-71AF-430D-B6DC-3372C6B944D5}" ?>
+
+  <Product Id="*" Name="安装模板 v$(var.ProductVersion)" Language="2052" Codepage="936" Manufacturer="Link模板"
+           Version="!(bind.FileVersion.InstallTempalte)"
+           UpgradeCode="{2E8636FC-71AF-430D-B6DC-3372C6B944D5}">
+    <Package Id="*" Description="安装模板" InstallerVersion="300" Compressed="yes" Manufacturer="Link模板" InstallScope="perMachine" SummaryCodepage="936" />
+
+    <UIRef Id="WixUI_InstallDir"/>
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+
+    <WixVariable Id="WixUILicenseRtf" Value="CustomLicense.rtf"/>
+
+    <MajorUpgrade AllowSameVersionUpgrades="yes" DowngradeErrorMessage="已安装新版 [ProductName]。" />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Feature Id="ProductFeature" Title="安装模板" Level="1" Absent="disallow" >
+      <ComponentGroupRef Id="LinkComponents" />
+    </Feature>
+
+    <!--不显示在控制面版中-->
+    <!--<Property Id="ARPSYSTEMCOMPONENT" Value="1" />-->
+    <!--控制面板中不显示修复修改-->
+    <!--<Property Id='ARPNOREPAIR'>1</Property>
+    <Property Id='ARPNOMODIFY'>1</Property>-->
+
+  </Product>
+
+  <!--安装目标目录-->
+  <Fragment>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <!--安装目录-->
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="Link" >
+          <Directory Id="LinkFolder" Name="InstallTemplate" >
+          </Directory>
+        </Directory>
+      </Directory>
+
+      <!--开始菜单-->
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="LinkStartMenuFolder" Name="Link" />
+      </Directory>
+
+      <!--桌面-->
+      <Directory Id="DesktopFolder" />
+    </Directory>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="LinkComponents" Source="$(var.Install.TemplateExe.TargetDir)">
+      <Component Id="cmpInstallTemplate" Guid="{68C7DF9D-02F5-4A6D-9738-3856FC80413C}" Directory="LinkFolder">
+        <File Id="InstallTempalte" Name="$(var.Install.TemplateExe.TargetFileName)" KeyPath="yes" >
+          <!--安装时创建本机映像，优化启动速度-->
+          <netfx:NativeImage Id="ngen_InstallTempalte" Priority="0" AppBaseDirectory="LinkFolder"/>
+        </File>
+        <!--<File Name="$(var.Install.TemplateExe.TargetFileName).config" />-->
+
+        <!--其他文件-->
+
+        
+      </Component>
+
+      <Component Id="cmpInstallTempalteShortcut" Guid="{DD523662-5A38-49E1-9933-67F1660B400C}" Directory="LinkFolder" >
+        <RegistryValue Root="HKCU" Key="Software\Link\InstallTemplate" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+
+        <Shortcut Id="InstallTempalteMenuShortcut" Name="安装模板参考" Directory="LinkStartMenuFolder" Target="[LinkFolder]$(var.Install.TemplateExe.TargetFileName)" WorkingDirectory="LinkFolder" />
+        <Shortcut Id="InstallTempalteDesktopShortcut" Name="安装模板参考" Description="安装模板参考" Directory="DesktopFolder" Target="[LinkFolder]$(var.Install.TemplateExe.TargetFileName)" WorkingDirectory="LinkFolder" />
+
+        <Shortcut Id="UninstallInstallTempalteShortcut" Name="卸载安装模板参考" Directory="LinkStartMenuFolder" Description="安装模板参考卸载" Target="[System64Folder]msiexec.exe" Arguments="/x [ProductCode]" />
+
+        <RemoveFolder Id="RemoveLinkStartMenuFolder" Directory="LinkStartMenuFolder" On="uninstall" />
+      </Component>
+
+    </ComponentGroup>
+  </Fragment>
+</Wix>

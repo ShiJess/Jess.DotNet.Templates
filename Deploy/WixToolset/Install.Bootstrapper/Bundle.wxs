@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+  xmlns:bal="http://schemas.microsoft.com/wix/BalExtension"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension" >
+
+  <!--BuildVersion来源与项目文件中的配置-->
+  <?define ProductVersion="$(var.BuildVersion)" ?>
+
+  <Bundle Name="安装模板 v$(var.ProductVersion)"
+          Version="$(var.ProductVersion)"
+          Manufacturer="Link"
+          UpgradeCode="{E5944EA0-083E-41E0-BCC5-8BD8058AA914}">
+    <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense" >
+      <bal:WixStandardBootstrapperApplication SuppressOptionsUI="yes"
+                                              LicenseFile="CustomLicense.rtf"
+                                              />
+    </BootstrapperApplicationRef>
+
+    <Chain>
+      <MsiPackage SourceFile="$(var.Install.Setup.TargetPath)" Visible="no" Vital="yes" />
+    </Chain>
+  </Bundle>
+
+</Wix>
